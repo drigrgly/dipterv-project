@@ -1,4 +1,4 @@
-# 2026. 03. 11. - devlog
+# 2026. 03. 11. - Modifying starter configs
 
 ## Simple path matching test
 

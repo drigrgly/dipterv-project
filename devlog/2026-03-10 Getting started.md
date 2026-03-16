@@ -1,4 +1,4 @@
-# 2026. 03. 10. - devlog
+# 2026. 03. 10. - Getting started
 
 # Envoy starters
 Trying out the Envoy gateway api
@@ -73,5 +73,3 @@ docker buildx build \
 
 It works on chrome, but not on firefox
 ![neko-working](images/neko-working.png)
-
-# Modifying STUNner starter

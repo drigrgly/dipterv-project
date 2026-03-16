@@ -1,2 +1,5 @@
 # Ignore vim outputs
 **/*\.un~
+
+# Ignore stunner repository
+stunner-base
