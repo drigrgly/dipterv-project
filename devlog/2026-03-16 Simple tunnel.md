@@ -25,25 +25,24 @@ Specify OS and CPU architecture (for example for mac)
 GOOS=macos GOARCH=arm64 go install github.com/l7mp/stunner/cmd/turncat@v0.17.5
 ```
 
-### Iperf3
+### Iperf
 
 With my package manager I installed [Iperf](https://iperf.fr/iperf-download.php)
 
 Here are some examples for different systems
 
 macOS: \
-HomeBrew: `brew install iperf3` **<- I used this one** \
-MacPorts: `sudo port install iperf3`
-
+HomeBrew: `brew install iperf` **<- I used this one** \
+MacPorts: `sudo port install iperf`
 
 Ubuntu / Debian / Mint: \
-`sudo apt-get install iperf3`
+`sudo apt-get install iperf`
 
 Fedora Fedora / Red Hat / CentOS / Rocky: \
-`yum install iperf3`
+`yum install iperf`
 
-FreeBSD: \
-`sudo pkg install benchmarks/iperf3`
+Arch based:
+`sudo pacman -S iperf`
 
 ### Simple-tunnel starter
 To follow the guide I cloned the [stunner repository](https://github.com/l7mp/stunner) and copied the files from the `simple-tunnel` example into my [simple-tunnel folder](../simple-tunnel/).
@@ -57,7 +56,7 @@ On the steps of installing Stunner you can find more in my previous devlog: [Get
 
 First, I created the `stunner` namespace:
 ```
-kubectl create namepsace stunne create namepsace stunner
+kubectl create namepsace stunner
 ```
 
 I applied the two manifests in this order:
