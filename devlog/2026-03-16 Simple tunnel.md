@@ -20,11 +20,6 @@ Installng the `turncat` binary using Go toolchain
 go install github.com/l7mp/stunner/cmd/turncat@latest
 ```
 
-Specify OS and CPU architecture (for example for mac)
-```
-GOOS=macos GOARCH=arm64 go install github.com/l7mp/stunner/cmd/turncat@v0.17.5
-```
-
 ### Iperf3
 
 With my package manager I installed [Iperf](https://iperf.fr/iperf-download.php)
