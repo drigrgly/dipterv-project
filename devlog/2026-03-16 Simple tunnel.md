@@ -106,7 +106,7 @@ You can check the server logs with
 kubectl logs $(kubectl get pods -l app=iperf-server -o jsonpath='{.items[0].metadata.name}')
 ```
 
-<span style="color:orange">**Problem**</span> \
+<span style="color:orange">**Problem 1**</span> \
 The server logs should contain the statistics about the benchmark, but for me it is missing:
 
 ```
@@ -123,4 +123,48 @@ turncat --log=all:INFO udp://127.0.0.1:5000 k8s://stunner/udp-gateway:udp-listen
      udp://$IPERF_ADDR:5001
 21:57:43.670504 turncat.go:193: turncat INFO: Client listening on udp://127.0.0.1:5000, TURN server: turn://192.168.139.2:3478?transport=udp, peer: udp:192.168.194.167:5001
 21:57:55.483057 turncat.go:464: turncat WARNING: Cannot connect back to client udp:127.0.0.1:53865: dial udp 127.0.0.1:5000->127.0.0.1:53865: bind: address already in use
+```
+
+After having a discussion about the problem, we came to the conclusion, that it is caused by the differences of how linux and mac are handling the port/socket bindings.
+
+<span style="color:orange">**Problem 2**</span> \
+After the previous discovery, I've tried out the setup on **Linux (Manjaro)**, using minkube. Everything went well, until I got to the same point as I did on mac. Fortunately, this time I got a different error:
+
+```
+19:19:14.110477 turncat.go:472: turncat WARNING: Relay setup failed for client udp:127.0.0.1:39347: failed to allocate TURN relay transport for client udp:127.0.0.1:39347: all retransmissions failed for Few1WQLdBDcp3vVr
+```
+For some reason the turncat outside of the cluster wasn't able to connect to the turn server inside of the cluster.
+
+<span style="color:lime">**Resolution**</span> \
+After spending countless hours I've given up on minikube and installed a `k3s` cluster. After setting up stunner, and all the necessary dependencies to try out the `simple-tunnel` example, it finally worked:
+
+
+```
+iperf -c 127.0.0.1 -p 5000 -u -l 100 -b 5M -t 5
+------------------------------------------------------------
+Client connecting to 127.0.0.1, UDP port 5000
+Sending 100 byte datagrams, IPG target: 0.00 us (kalman adjust)
+UDP buffer size:  208 KByte (default)
+------------------------------------------------------------
+[  1] local 127.0.0.1 port 45142 connected with 127.0.0.1 port 5000
+[ ID] Interval       Transfer     Bandwidth
+[  1] 0.0000-5.0003 sec  3.13 MBytes  5.24 Mbits/sec
+[  1] Sent 32771 datagrams
+[  1] Server Report:
+[ ID] Interval            Transfer     Bandwidth        Jitter   Lost/Total  Latency avg/min/max/stdev PPS  Rx/inP  Read/Timeo/Trunc  NetPwr
+[  1] 0.0000-4.9975 sec  3.13 MBytes  5.25 Mbits/sec   0.013 ms 0/32770 (0%) 0.078/0.047/2.789/0.060 ms 6557 pps 6557/0(0) pkts 0/0/0 8409
+
+```
+
+```
+kubectl logs $(kubectl get pods -l app=iperf-server -o jsonpath='{.items[0].metadata.name}')
+------------------------------------------------------------
+Server listening on UDP port 5001 with pid 1
+Read buffer size: 1470 Byte 
+UDP buffer size:  208 KByte (default)
+------------------------------------------------------------
+[  1] local 10.42.0.19%eth0 port 5001 connected with 10.42.0.22 port 37480 (sock=3) (peer 2.2.1-rc) on 2026-03-25 19:37:20.784 (UTC)
+[ ID] Interval        Transfer     Bandwidth        Jitter   Lost/Total  Latency avg/min/max/stdev PPS Read/Timeo/Trunc NetPwr
+[  1] 0.00-5.00 sec  3.13 MBytes  5.25 Mbits/sec   0.013 ms 0/32770 (0%) 0.078/0.047/2.789/0.060 ms 6557 pps 32771/0/0 8409
+
 ```
