@@ -1,0 +1,12 @@
+apiVersion: stunner.l7mp.io/v1
+kind: Dataplane
+metadata:
+  name: default
+spec:
+  containerSecurityContext:
+    capabilities:
+      add:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - SYS_MODULE
+  offloadEngine: Auto
