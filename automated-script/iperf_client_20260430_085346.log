@@ -1,0 +1,25 @@
+1777532026
+------------------------------------------------------------
+Client connecting to localhost, UDP port 5000 with pid 31405 (1/0 flows/load)
+TOS defaults to 0x0 (dscp=0,ecn=0) (Nagle on)
+Sending 100 byte datagrams, IPG target: 0.00 us (kalman adjust)
+UDP buffer size:  208 KByte (default)
+------------------------------------------------------------
+[  1] local 127.0.0.1%lo port 40785 connected with 127.0.0.1 port 5000 on 2026-04-30 08:53:46.531 (CEST)
+[ ID] Interval            Transfer     Bandwidth      Write/Err/Timeo  PPS
+[  1] 0.0000-1.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 1.0000-2.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 2.0000-3.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 3.0000-4.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 4.0000-5.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 5.0000-6.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 6.0000-7.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 7.0000-8.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 8.0000-9.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 9.0000-10.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 0.0000-10.0012 sec   977 KBytes   800 Kbits/sec  10002/0/0     909 pps
+[  1] Sent 10003 datagrams
+[  1] Server Report:
+[ ID] Interval            Transfer     Bandwidth        Jitter   Lost/Total  Latency avg/min/max/stdev PPS  Rx/inP  Read/Timeo/Trunc  NetPwr
+[  1] 0.0000-9.9983 sec   977 KBytes   800 Kbits/sec   0.036 ms 0/10002 (0%) 0.144/0.052/2.036/0.049 ms 1000 pps 1000/0(0) pkts 0/0/0 694
+1777532036

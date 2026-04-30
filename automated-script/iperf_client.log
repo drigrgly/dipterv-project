@@ -1,0 +1,75 @@
+1777531843
+------------------------------------------------------------
+Client connecting to localhost, UDP port 5000 with pid 29654 (1/0 flows/load)
+TOS defaults to 0x0 (dscp=0,ecn=0) (Nagle on)
+Sending 100 byte datagrams, IPG target: 0.00 us (kalman adjust)
+UDP buffer size:  208 KByte (default)
+------------------------------------------------------------
+[  1] local 127.0.0.1%lo port 41541 connected with 127.0.0.1 port 5000 on 2026-04-30 08:50:43.461 (CEST)
+[ ID] Interval            Transfer     Bandwidth      Write/Err/Timeo  PPS
+[  1] 0.0000-1.0000 sec  97.7 KBytes   800 Kbits/sec  1000/163/0     860 pps
+[  1] 1.0000-2.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 2.0000-3.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 3.0000-4.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 4.0000-5.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 5.0000-6.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 6.0000-7.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 7.0000-8.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 8.0000-9.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 9.0000-10.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 0.0000-10.0012 sec   977 KBytes   800 Kbits/sec  10002/163/0     909 pps
+[  1] Sent 10003 datagrams
+[  1] Server Report:
+[ ID] Interval            Transfer     Bandwidth        Jitter   Lost/Total  Latency avg/min/max/stdev PPS  Rx/inP  Read/Timeo/Trunc  NetPwr
+[  1] 0.0000-9.8338 sec   961 KBytes   800 Kbits/sec   0.036 ms 163/10002 (1.6%) 0.172/0.065/3.501/0.093 ms 1017 pps 1017/0(0) pkts 0/0/0 583
+1777531853
+1777531889
+------------------------------------------------------------
+Client connecting to localhost, UDP port 5000 with pid 30076 (1/0 flows/load)
+TOS defaults to 0x0 (dscp=0,ecn=0) (Nagle on)
+Sending 100 byte datagrams, IPG target: 0.00 us (kalman adjust)
+UDP buffer size:  208 KByte (default)
+------------------------------------------------------------
+[  1] local 127.0.0.1%lo port 42046 connected with 127.0.0.1 port 5000 on 2026-04-30 08:51:29.994 (CEST)
+[ ID] Interval            Transfer     Bandwidth      Write/Err/Timeo  PPS
+[  1] 0.0000-1.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 1.0000-2.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 2.0000-3.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 3.0000-4.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 4.0000-5.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 5.0000-6.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 6.0000-7.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 7.0000-8.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 8.0000-9.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 9.0000-10.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 0.0000-10.0012 sec   977 KBytes   800 Kbits/sec  10002/0/0     909 pps
+[  1] Sent 10003 datagrams
+[  1] Server Report:
+[ ID] Interval            Transfer     Bandwidth        Jitter   Lost/Total  Latency avg/min/max/stdev PPS  Rx/inP  Read/Timeo/Trunc  NetPwr
+[  1] 0.0000-9.9991 sec   977 KBytes   800 Kbits/sec   0.037 ms 0/10002 (0%) 0.143/0.063/3.985/0.066 ms 1000 pps 1000/0(0) pkts 0/0/0 698
+1777531900
+1777531943
+------------------------------------------------------------
+Client connecting to localhost, UDP port 5000 with pid 30655 (1/0 flows/load)
+TOS defaults to 0x0 (dscp=0,ecn=0) (Nagle on)
+Sending 100 byte datagrams, IPG target: 0.00 us (kalman adjust)
+UDP buffer size:  208 KByte (default)
+------------------------------------------------------------
+[  1] local 127.0.0.1%lo port 34417 connected with 127.0.0.1 port 5000 on 2026-04-30 08:52:23.356 (CEST)
+[ ID] Interval            Transfer     Bandwidth      Write/Err/Timeo  PPS
+[  1] 0.0000-1.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 1.0000-2.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 2.0000-3.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 3.0000-4.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 4.0000-5.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 5.0000-6.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 6.0000-7.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 7.0000-8.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 8.0000-9.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 9.0000-10.0000 sec  97.7 KBytes   800 Kbits/sec  1000/0/0    1000 pps
+[  1] 0.0000-10.0012 sec   977 KBytes   800 Kbits/sec  10002/0/0     909 pps
+[  1] Sent 10003 datagrams
+[  1] Server Report:
+[ ID] Interval            Transfer     Bandwidth        Jitter   Lost/Total  Latency avg/min/max/stdev PPS  Rx/inP  Read/Timeo/Trunc  NetPwr
+[  1] 0.0000-9.9993 sec   977 KBytes   800 Kbits/sec   0.034 ms 0/10002 (0%) 0.144/0.065/1.002/0.038 ms 1000 pps 1000/0(0) pkts 0/0/0 695
+1777531953

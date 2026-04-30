@@ -75,3 +75,14 @@ password: `<The output password>`
 
 On the `Grafana dashboard` under `Dashboards > Kubernetes / Compute Resources / Cluster` we can see the resource usage of our cluster
 ![grafana dashboard](../devlog/images/monitoring/grafana-dashboard.png)
+
+# Difference between offload and non-offload
+
+Again, using the simple-tunnel example, I've generated some traffic with `iperf`. 
+For the first two measurements, offloading was turned on, then it was turned off.
+
+Below you can see the difference between CPU usages:
+
+![cpu-usage](../devlog/images/monitoring/comparison-between-offload-and-non-offload.png)
+
+The first two bumps in the "Receive Bandwidth" tab are from the first two measurements, featuring offloading, as we can see the CPU Usage didn't increase. After turning off the offloading and repeating the test, we can see that as the traffic went up, so did the CPU usage.

@@ -1,5 +1,15 @@
 # Friss
 
+# Go cuccok
+- [viper](https://github.com/spf13/viper)
+- [cobra](https://github.com/spf13/cobra)
+- [yaml? -> viper/cobra lehet kezeli](https://github.com/goccy/go-yaml)
+- [yaml? -> viper/cobra lehet kezeli](https://github.com/goccy/go-yaml)
+- [prmethushoz kinyerni: styx](https://github.com/go-pluto/styx)
+
+# Ötlet
+.yaml file-ba lehetne definiálni a mérést (méréseket)
+
 - Script készítése
   - Megadható indításnál, hogy offloadban, vagy ne offloadban menjen
   - Elindít (turncat) iperf küldi a loadot (legyen paramétezhető)
