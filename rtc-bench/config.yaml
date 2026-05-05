@@ -1,8 +1,15 @@
 measurements:
-  - name: cluster1
+  - name: local-measurement
     cluster:
+        type: local
         host: cluster1-node1.example.com
-        port: 9000
+    client:
+        address: "127.0.0.1:5000"
+    turncat:
+      log: "all:INFO"
+      #client-address: "udp://127.0.0.1:5000"
+      turn-server-address: "k8s://stunner/udp-gateway:udp-listener"
+      peer-host-address: "udp://$(kubectl get svc iperf-server -o jsonpath=\"{.spec.clusterIP}\"):5001"
     iperf:
       type: udp
       time: 10
@@ -10,6 +17,3 @@ measurements:
       size: 100
       report-interval: 1
       enhanced-output: false
-      connection:
-        host: localhost
-        port: 5000
