@@ -4,16 +4,24 @@ measurements:
         type: local
         host: cluster1-node1.example.com
     client:
-        address: "127.0.0.1:5000"
+        host: 127.0.0.1
+        port: 5000
     turncat:
       log: "all:INFO"
-      #client-address: "udp://127.0.0.1:5000"
-      turn-server-address: "k8s://stunner/udp-gateway:udp-listener"
-      peer-host-address: "udp://$(kubectl get svc iperf-server -o jsonpath=\"{.spec.clusterIP}\"):5001"
-    iperf:
-      type: udp
-      time: 10
-      bandwidth: 800000
-      size: 100
-      report-interval: 1
-      enhanced-output: false
+      # Other info is gathered by the go script
+    loadGenerator: # Try out kubernetes like command + args style parameters
+      command: iperf
+      args: ["-c", "localhost", "-p", "5000", "-u", "-i", "1", "-l", "100", "-b", "800000", "-t", "2", "-e"]
+  - name: local-measurement-2
+    cluster:
+        type: local
+        host: cluster1-node1.example.com
+    client:
+        host: 127.0.0.1
+        port: 5002
+    turncat:
+      log: "all:INFO"
+      # Other info is gathered by the go script
+    loadGenerator: # Try out kubernetes like command + args style parameters
+      command: iperf
+      args: ["-c", "localhost", "-p", "5000", "-u", "-i", "1", "-l", "100", "-b", "800000", "-t", "10", "-e"]
