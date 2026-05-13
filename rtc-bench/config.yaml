@@ -1,27 +1,22 @@
+# At the time this configuration works for local measurements
 measurements:
-  - name: local-measurement
-    cluster:
-        type: local
-        host: cluster1-node1.example.com
+  - name: short-measurement
     client:
         host: 127.0.0.1
         port: 5000
     turncat:
       log: "all:INFO"
       # Other info is gathered by the go script
-    loadGenerator: # Try out kubernetes like command + args style parameters
+    loadGenerator: 
       command: iperf
       args: ["-c", "localhost", "-p", "5000", "-u", "-i", "1", "-l", "100", "-b", "800000", "-t", "2", "-e"]
-  - name: local-measurement-2
-    cluster:
-        type: local
-        host: cluster1-node1.example.com
-    client:
-        host: 127.0.0.1
-        port: 5002
-    turncat:
-      log: "all:INFO"
-      # Other info is gathered by the go script
-    loadGenerator: # Try out kubernetes like command + args style parameters
-      command: iperf
-      args: ["-c", "localhost", "-p", "5000", "-u", "-i", "1", "-l", "100", "-b", "800000", "-t", "10", "-e"]
+  # - name: long-measurement
+  #   client:
+  #       host: 127.0.0.1
+  #       port: 5002
+  #   turncat:
+  #     log: "all:INFO"
+  #     # Other info is gathered by the go script
+  #   loadGenerator: 
+  #     command: iperf
+  #     args: ["-c", "localhost", "-p", "5000", "-u", "-i", "1", "-l", "100", "-b", "800000", "-t", "10", "-e"]

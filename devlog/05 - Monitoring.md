@@ -86,3 +86,12 @@ Below you can see the difference between CPU usages:
 ![cpu-usage](../devlog/images/monitoring/comparison-between-offload-and-non-offload.png)
 
 The first two bumps in the "Receive Bandwidth" tab are from the first two measurements, featuring offloading, as we can see the CPU Usage didn't increase. After turning off the offloading and repeating the test, we can see that as the traffic went up, so did the CPU usage.
+
+# Reaching Prometheus UI and building custom query for later
+
+## How to reach the UI
+
+Port forward the service to the ui:
+```bash
+kubectl port-forward -n monitoring svc/monitoring-kube-prometheus-prometheus 9090:9090
+```
