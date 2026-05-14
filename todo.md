@@ -1,5 +1,8 @@
 # Friss
 
+- Turncat kapcsolhatóvá tétele
+- Logolást normálisan belerakni -> Log/slog
+
 # Go cuccok
 - [viper](https://github.com/spf13/viper)
 - [cobra](https://github.com/spf13/cobra)
