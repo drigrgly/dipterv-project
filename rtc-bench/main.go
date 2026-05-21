@@ -2,19 +2,24 @@ package main
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/csv"
 	"flag"
 	"fmt"
-	"io"
-	"net/http"
+	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/spf13/viper"
 
+	"github.com/prometheus/client_golang/api"
+	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
+	"github.com/prometheus/common/model"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -61,6 +66,10 @@ func main() {
 		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
 	}
 	flag.Parse()
+
+	// Initialize logger
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
 
 	// use the current context in kubeconfig
 	kubeCfg, kubeErr := clientcmd.BuildConfigFromFlags("", *kubeconfig)
@@ -195,13 +204,9 @@ func startMeasurement(measurement Measurement, wg *sync.WaitGroup) {
 
 	clientAddress := fmt.Sprintf("udp://%s:%d", measurement.Client.Host, measurement.Client.Port)
 
-	fmt.Printf("Measurement Name: %s\n", measurement.Name)
-	fmt.Printf("Hosted Client address: %s:%d\n", measurement.Client.Host, measurement.Client.Port)
-	fmt.Printf("Peer Address: %s\n", measurement.Turncat.PeerHostAddress)
-	fmt.Printf("Turn server address: %s\n", measurement.Turncat.TurnServerAddress)
-	fmt.Print("------------------------------\n")
+	slog.Info("Measurement configuration", "name", measurement.Name, "client", fmt.Sprintf("%s:%d", measurement.Client.Host, measurement.Client.Port), "peer", measurement.Turncat.PeerHostAddress, "turn_server", measurement.Turncat.TurnServerAddress)
 
-	fmt.Print("Starting turncat\n")
+	slog.Info("Starting turncat")
 
 	// Get the authentication information for turncat
 
@@ -210,12 +215,10 @@ func startMeasurement(measurement Measurement, wg *sync.WaitGroup) {
 
 	// Save start time
 	startTime := time.Now()
-	fmt.Printf("Measurement start time: %s\n", startTime.Format(time.RFC3339))
+	slog.Info("Measurement start time", "time", startTime.Format(time.RFC3339))
 
 	// Print loadGenerator
-	fmt.Printf("Load generator command: %s\n", measurement.LoadGenerator)
-
-	fmt.Printf("Starting load generator with command: %s and args: %v\n", measurement.LoadGenerator.Command, measurement.LoadGenerator.Args)
+	slog.Info("Starting load generator", "command", measurement.LoadGenerator.Command, "args", measurement.LoadGenerator.Args)
 
 	loadGenerator := exec.Command(measurement.LoadGenerator.Command, measurement.LoadGenerator.Args...)
 	loadGenerator.Stdout = os.Stdout
@@ -234,17 +237,17 @@ func startMeasurement(measurement Measurement, wg *sync.WaitGroup) {
 
 	// Save end time
 	endTime := time.Now()
-	fmt.Printf("Measurement end time: %s\n", endTime.Format(time.RFC3339))
+	slog.Info("Measurement end time", "time", endTime.Format(time.RFC3339))
 
-	fmt.Printf("Shutting down turncat for measurement: %s\n", measurement.Name)
+	slog.Info("Shutting down turncat", "measurement", measurement.Name)
 	turncat.Process.Kill()
 
 	// Run styx to save prometheus data
-	fmt.Printf("Fetching prometheus data for measurement: %s\n", measurement.Name)
+	slog.Info("Fetching prometheus data", "measurement", measurement.Name)
 	bufferTime := 5 * time.Minute
 	savePrometheusData(measurement.Name, startTime, endTime, bufferTime)
 
-	fmt.Printf("Measurement completed: %s\n", measurement.Name)
+	slog.Info("Measurement completed", "measurement", measurement.Name)
 }
 
 func savePrometheusData(measurementName string, startTime, endTime time.Time, bufferTime time.Duration) {
@@ -252,50 +255,40 @@ func savePrometheusData(measurementName string, startTime, endTime time.Time, bu
 	outputDir := filepath.Join("results", measurementName)
 	err := os.MkdirAll(outputDir, 0755)
 	if err != nil {
-		fmt.Printf("Error creating output directory: %v\n", err)
+		slog.Error("Error creating output directory", "error", err)
 		return
 	}
 
-	// Get time offset between local system and Prometheus server
-	timeOffset, err := getPrometheusTimeOffset()
-	if err != nil {
-		fmt.Printf("Warning: Could not determine time offset: %v. Using local time.\n", err)
-		timeOffset = 0
-	}
-
-	// Apply time offset to start and end times
-	adjustedStart := startTime.Add(timeOffset)
-	adjustedEnd := endTime.Add(timeOffset)
-
 	// Add buffer time before start and after end to capture metrics
-	bufferedStart := adjustedStart.Add(-bufferTime)
+	bufferedStart := startTime.Add(-bufferTime)
 
-	// Format start time in UTC for styx
-	startStr := bufferedStart.UTC().Format("2006-01-02T15:04:05")
+	// Format start time for styx
+	startStr := bufferedStart.Format("2006-01-02T15:04:05")
 
 	// Calculate duration
-	duration := adjustedEnd.Sub(bufferedStart)
+	duration := endTime.Sub(startTime)
 	durationStr := duration.String()
 
-	fmt.Printf("Running styx for start: %s, duration: %s (adjusted by offset: %v)\n", startStr, durationStr, timeOffset)
+	slog.Info("Running styx query", "start", startStr, "duration", durationStr)
 
 	// CPU query
 	cpuQuery := "sum(rate(container_cpu_usage_seconds_total[5m])) by (namespace)"
 	cpuFile := filepath.Join(outputDir, "cpu_by_namespace.csv")
-	err = runStyxQuery(cpuQuery, startStr, durationStr, cpuFile)
-	if err != nil {
-		fmt.Printf("Error fetching CPU data: %v\n", err)
-	}
+	runPrometheusQuery(cpuQuery, cpuFile, startTime, endTime)
+	// err = runStyxQuery(cpuQuery, startStr, durationStr, cpuFile)
+	// if err != nil {
+	// 	slog.Error("Error fetching CPU data", "error", err)
+	// }
 
 	// Memory query
 	memQuery := "sum(container_memory_working_set_bytes) by (namespace) / 1024 / 1024 / 1024"
 	memFile := filepath.Join(outputDir, "memory_by_namespace.csv")
-	err = runStyxQuery(memQuery, startStr, durationStr, memFile)
-	if err != nil {
-		fmt.Printf("Error fetching memory data: %v\n", err)
-	}
+	runPrometheusQuery(memQuery, memFile, bufferedStart, endTime)
+	// if err != nil {
+	// 	slog.Error("Error fetching memory data", "error", err)
+	// }
 
-	fmt.Printf("Prometheus data saved to %s\n", outputDir)
+	slog.Info("Prometheus data saved", "directory", outputDir)
 }
 
 func runStyxQuery(query, start, duration, outputFile string) error {
@@ -304,7 +297,7 @@ func runStyxQuery(query, start, duration, outputFile string) error {
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Printf("Styx output:\n%s\n", string(output))
+		slog.Error("Error running styx", "output", string(output), "error", err)
 		return fmt.Errorf("error running styx: %w", err)
 	}
 
@@ -314,42 +307,204 @@ func runStyxQuery(query, start, duration, outputFile string) error {
 		return fmt.Errorf("error writing output file: %w", err)
 	}
 
-	fmt.Printf("Saved query results to %s\n", outputFile)
+	slog.Info("Saved query results", "file", outputFile)
 	return nil
 }
 
-func getPrometheusTimeOffset() (time.Duration, error) {
-	// Try to get time from Prometheus HTTP API
-	resp, err := http.Get("http://localhost:9090/api/v1/query?query=time()")
-	if err != nil {
-		return 0, fmt.Errorf("error connecting to prometheus: %w", err)
-	}
-	defer resp.Body.Close()
+func runPrometheusQuery(query, outputFile string, start, end time.Time) {
+	// --- Config ---
+	prometheusURL := "http://localhost:9090"
+	step := 5 * time.Second
 
-	body, err := io.ReadAll(resp.Body)
+	// --- Prometheus client ---
+	client, err := api.NewClient(api.Config{Address: prometheusURL})
 	if err != nil {
-		return 0, fmt.Errorf("error reading prometheus response: %w", err)
+		panic(fmt.Sprintf("error creating prometheus client: %v", err))
+	}
+	promAPI := v1.NewAPI(client)
+
+	// --- Query range ---
+	result, warnings, err := promAPI.QueryRange(context.Background(), query, v1.Range{
+		Start: start,
+		End:   end,
+		Step:  step,
+	})
+	if err != nil {
+		panic(fmt.Sprintf("error querying prometheus: %v", err))
+	}
+	if len(warnings) > 0 {
+		fmt.Printf("warnings: %v\n", warnings)
 	}
 
-	// Parse JSON response
-	var result map[string]interface{}
-	err = json.Unmarshal(body, &result)
-	if err != nil {
-		return 0, fmt.Errorf("error parsing prometheus response: %w", err)
+	matrix, ok := result.(model.Matrix)
+	if !ok {
+		panic(fmt.Sprintf("expected matrix result, got %T", result))
 	}
 
-	// Extract timestamp from response
-	if data, ok := result["data"].(map[string]interface{}); ok {
-		if resultData, ok := data["result"].([]interface{}); ok && len(resultData) > 0 {
-			if timestampVal, ok := resultData[0].(float64); ok {
-				prometheusTime := time.Unix(int64(timestampVal), int64((timestampVal-float64(int64(timestampVal)))*1e9))
-				localTime := time.Now()
-				offset := localTime.Sub(prometheusTime)
-				fmt.Printf("Local time: %s, Prometheus time: %s, offset: %v\n", localTime.Format(time.RFC3339), prometheusTime.Format(time.RFC3339), offset)
-				return offset, nil
+	// --- Collect all label names for dynamic headers ---
+	labelSet := map[string]struct{}{}
+	for _, series := range matrix {
+		for name := range series.Metric {
+			labelSet[string(name)] = struct{}{}
+		}
+	}
+
+	// Sort label names for consistent column order
+	labelNames := make([]string, 0, len(labelSet))
+	for name := range labelSet {
+		labelNames = append(labelNames, name)
+	}
+
+	slog.Info(strings.Join(labelNames, ","))
+	//sort.Strings(labelNames)
+
+	namespaces := []string{}
+
+	// Get the namespaces
+	for _, series := range matrix {
+		slog.Info(string(series.Metric[model.LabelName("namespace")]))
+		namespaces = append(namespaces, string(series.Metric[model.LabelName("namespace")]))
+	}
+
+	headers := append([]string{"timestamp"}, namespaces...)
+
+	slog.Info(strings.Join(headers, ", "))
+
+	//create a map of namespace to values
+	namespaceValues := map[string][]model.SamplePair{}
+
+	for _, series := range matrix {
+		namespace := string(series.Metric[model.LabelName("namespace")])
+		namespaceValues[namespace] = append(namespaceValues[namespace], series.Values...)
+	}
+
+	maxValueNumbers := 0
+
+	for _, values := range namespaceValues {
+		if len(values) > maxValueNumbers {
+			maxValueNumbers = len(values)
+		}
+	}
+
+	slog.Info(strings.Join(headers, ","))
+
+	// --- Write CSV ---
+	f, err := os.Create(outputFile)
+	if err != nil {
+		panic(fmt.Sprintf("error creating output file: %v", err))
+	}
+	defer f.Close()
+
+	writer := csv.NewWriter(f)
+	defer writer.Flush()
+
+	if err := writer.Write(headers); err != nil {
+		panic(fmt.Sprintf("error writing headers: %v", err))
+	}
+
+	for i := 0; i < maxValueNumbers; i++ {
+		row := make([]string, len(headers))
+		for j, namespace := range namespaces {
+			if i < len(namespaceValues[namespace]) {
+				sample := namespaceValues[namespace][i]
+				row[j+1] = sample.Value.String()
+				if j == 0 {
+					row[0] = strconv.FormatInt(sample.Timestamp.Unix(), 10)
+				}
+			}
+		}
+
+		if err := writer.Write(row); err != nil {
+			panic(fmt.Sprintf("error writing row: %v", err))
+		}
+
+	}
+
+}
+
+func runPrometheusQuery_BACKUP(query, outputFile string, start, end time.Time) {
+	// --- Config ---
+	prometheusURL := "http://localhost:9090"
+	step := 5 * time.Second
+
+	// --- Prometheus client ---
+	client, err := api.NewClient(api.Config{Address: prometheusURL})
+	if err != nil {
+		panic(fmt.Sprintf("error creating prometheus client: %v", err))
+	}
+	promAPI := v1.NewAPI(client)
+
+	// --- Query range ---
+	result, warnings, err := promAPI.QueryRange(context.Background(), query, v1.Range{
+		Start: start,
+		End:   end,
+		Step:  step,
+	})
+	if err != nil {
+		panic(fmt.Sprintf("error querying prometheus: %v", err))
+	}
+	if len(warnings) > 0 {
+		fmt.Printf("warnings: %v\n", warnings)
+	}
+
+	slog.Info(result.String())
+
+	matrix, ok := result.(model.Matrix)
+	if !ok {
+		panic(fmt.Sprintf("expected matrix result, got %T", result))
+	}
+
+	// --- Collect all label names for dynamic headers ---
+	labelSet := map[string]struct{}{}
+	for _, series := range matrix {
+		for name := range series.Metric {
+			labelSet[string(name)] = struct{}{}
+		}
+	}
+
+	// Sort label names for consistent column order
+	labelNames := make([]string, 0, len(labelSet))
+	for name := range labelSet {
+		labelNames = append(labelNames, name)
+	}
+	sort.Strings(labelNames)
+
+	// --- Build header row ---
+	// Format: timestamp, <label1>, <label2>, ...
+	headers := append([]string{"timestamp", "value"}, labelNames...)
+
+	// --- Write CSV ---
+	f, err := os.Create(outputFile)
+	if err != nil {
+		panic(fmt.Sprintf("error creating output file: %v", err))
+	}
+	defer f.Close()
+
+	writer := csv.NewWriter(f)
+	defer writer.Flush()
+
+	if err := writer.Write(headers); err != nil {
+		panic(fmt.Sprintf("error writing headers: %v", err))
+	}
+
+	for _, series := range matrix {
+		for _, sample := range series.Values {
+			row := make([]string, len(headers))
+			row[0] = strconv.FormatInt(sample.Timestamp.Unix(), 10)
+			row[1] = sample.Value.String()
+
+			for i, label := range labelNames {
+				row[i+2] = string(series.Metric[model.LabelName(label)])
+			}
+
+			slog.Info(series.Metric.String())
+
+			if err := writer.Write(row); err != nil {
+				panic(fmt.Sprintf("error writing row: %v", err))
 			}
 		}
 	}
 
-	return 0, fmt.Errorf("could not extract timestamp from prometheus response")
+	fmt.Printf("saved %d series to %s\n", len(matrix), outputFile)
+	fmt.Printf("headers: %v\n", headers)
 }
