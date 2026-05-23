@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"drigrgly/rtc-bench/logutils"
 	"flag"
 	"fmt"
 	"log/slog"
@@ -57,8 +56,8 @@ func main() {
 	flag.Parse()
 
 	// Initialize logger
-	//logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
-	logger := slog.New(logutils.NewCopyHandler(slog.NewTextHandler(os.Stdout, nil), slog.NewJSONHandler(os.Stdout, nil)))
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	//logger := slog.New(logutils.NewCopyHandler(slog.NewTextHandler(os.Stdout, nil)))
 	slog.SetDefault(logger)
 
 	// use the current context in kubeconfig
