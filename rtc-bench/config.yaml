@@ -9,7 +9,7 @@ measurements:
       # Other info is gathered by the go script
     loadGenerator: 
       command: iperf
-      args: ["-c", "localhost", "-p", "5000", "-u", "-i", "1", "-l", "100", "-b", "800000", "-t", "2", "-e"]
+      args: ["-c", "localhost", "-p", "5000", "-u", "-i", "1", "-l", "100", "-b", "800000", "-t", "100", "-e"]
     queries:
       - name: cpu-usage
         query: sum(rate(container_cpu_usage_seconds_total[5m])) by (namespace)

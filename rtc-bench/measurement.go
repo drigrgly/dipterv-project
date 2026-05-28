@@ -114,7 +114,7 @@ func savePrometheusData(measurementName string, startTime, endTime time.Time, bu
 func runPrometheusQuery(query, outputFile string, start, end time.Time) {
 	// --- Config ---
 	prometheusURL := "http://localhost:9090"
-	step := 5 * time.Second
+	step := 1 * time.Second
 
 	// --- Prometheus client ---
 	client, err := api.NewClient(api.Config{Address: prometheusURL})
